@@ -16,17 +16,15 @@ Removing Perspective Distortion
 i = 0
 rawReferenceImage = allImages[i]
 M = util.computeUnRotMatrix(dataMatrix[i,:])
-correctedReferenceImage = util.warpWithPadding(rawReferenceImage,M) #use corrected first image as reference image
-
+referenceImage = util.warpWithPadding(rawReferenceImage,M) #use corrected first image as reference image
+#util.display("corrected",referenceImage)
 for i in range(1,len(allImages)):
     image = allImages[i]
     M = util.computeUnRotMatrix(dataMatrix[i,:])
     correctedImage = util.warpWithPadding(image,M)
-
-
-
-util.display("warped",warped)
-
+    #util.display("corrected",correctedImage)
+    result = util.merge(referenceImage,correctedImage)
+    referenceImage = result
 '''
 stitched = paddedImg1/2 + warpedImg2/2
 cv2.namedWindow("stitched",cv2.WINDOW_NORMAL)

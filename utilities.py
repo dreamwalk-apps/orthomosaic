@@ -64,6 +64,71 @@ def display(title, image):
     cv2.resizeWindow(title,1920,1080)
     cv2.imshow(title,image)
     cv2.waitKey(0)
+    cv2.destroyWindow(title)
+
+def drawMatches(img1, kp1, img2, kp2, matches):
+    """
+    My own implementation of cv2.drawMatches as OpenCV 2.4.9
+    does not have this function available but it's supported in
+    OpenCV 3.0.0
+
+    This function takes in two images with their associated
+    keypoints, as well as a list of DMatch data structure (matches)
+    that contains which keypoints matched in which images.
+
+    An image will be produced where a montage is shown with
+    the first image followed by the second image beside it.
+
+    Keypoints are delineated with circles, while lines are connected
+    between matching keypoints.
+
+    img1,img2 - Grayscale images
+    kp1,kp2 - Detected list of keypoints through any of the OpenCV keypoint
+              detection algorithms
+    matches - A list of matches of corresponding keypoints through any
+              OpenCV keypoint matching algorithm
+    """
+
+    # Create a new output image that concatenates the two images together
+    # (a.k.a) a montage
+    rows1 = img1.shape[0]
+    cols1 = img1.shape[1]
+    rows2 = img2.shape[0]
+    cols2 = img2.shape[1]
+
+    out = np.zeros((max([rows1,rows2]),cols1+cols2,3), dtype='uint8')
+
+    # Place the first image to the left
+    out[:rows1,:cols1] = np.dstack([img1, img1, img1])
+
+    # Place the next image to the right of it
+    out[:rows2,cols1:] = np.dstack([img2, img2, img2])
+
+    # For each pair of points we have between both images
+    # draw circles, then connect a line between them
+    for mat in matches:
+
+        # Get the matching keypoints for each of the images
+        img1_idx = mat.queryIdx
+        img2_idx = mat.trainIdx
+
+        # x - columns
+        # y - rows
+        (x1,y1) = kp1[img1_idx].pt
+        (x2,y2) = kp2[img2_idx].pt
+
+        # Draw a small circle at both co-ordinates
+        radius = 8
+        thickness = 3
+        color = (255,0,0) #blue
+        cv2.circle(out, (int(x1),int(y1)), radius, color, thickness)
+        cv2.circle(out, (int(x2)+cols1,int(y2)), radius, color, thickness)
+
+        # Draw a line in between the two points
+        cv2.line(out, (int(x1),int(y1)), (int(x2)+cols1,int(y2)), color, thickness)
+
+    # Also return the image if you'd like a copy
+    return out
 
 def warpWithPadding(image,transformation):
     '''
@@ -88,7 +153,59 @@ def warpWithPadding(image,transformation):
 
     return result
 
+def merge(image1,image2):
+    '''
+    Adds second image to the first image. Assumes images have already been corrected.
+    Arguments:
+        image1 & image2: ndArrays already processed with computeUnRotMatrix() and warpWithPadding
+    Returns:
+        result: second image warped into first image
+    '''
 
+    '''
+    Feature detection and matching
+    '''
+
+    detector = cv2.ORB()
+    matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+    gray1 = cv2.cvtColor(image1,cv2.COLOR_BGR2GRAY)
+    keypoints1, descriptors1 = detector.detectAndCompute(gray1,None)
+    #result1 = cv2.drawKeypoints(image1,keypoints1,color=(0,0,255))
+    gray2 = cv2.cvtColor(image2,cv2.COLOR_BGR2GRAY)
+    keypoints2, descriptors2 = detector.detectAndCompute(gray2,None)
+    #result2 = cv2.drawKeypoints(image2,keypoints2,color=(0,0,255))
+    matches = matcher.match(descriptors2,descriptors1)
+    visualization = drawMatches(gray1,keypoints1,gray2,keypoints2,matches)
+    display("matches",visualization)
+
+    '''
+    Compute Affine Transform
+    '''
+
+    #Homography to warp image2 into image 1
+    src_pts = np.float32([ keypoints2[m.queryIdx].pt for m in matches ]).reshape(-1,1,2)
+    dst_pts = np.float32([ keypoints1[m.trainIdx].pt for m in matches ]).reshape(-1,1,2)
+    #H = cv2.findHomography(src_pts,dst_pts,method=cv2.RANSAC,ransacReprojThreshold=0.1)
+    #Homog21 = H[0] #3x3 homography matrix from img2 to img1
+    A = cv2.estimateRigidTransform(src_pts,dst_pts,fullAffine=False)
+    Homog21 = np.float32(([A[0,0],A[0,1],A[0,2]],[A[1,0],A[1,1],A[1,2]],[0,0,1]))
+
+    height1,width1 = image1.shape[:2]
+    height2,width2 = image2.shape[:2]
+    corners1 = np.float32([[0,0],[0,height1],[width1,height1],[width1,0]]).reshape(-1,1,2)
+    corners2 = np.float32([[0,0],[0,height2],[width2,height2],[width2,0]]).reshape(-1,1,2)
+    warpedCorners2 = cv2.perspectiveTransform(corners2, Homog21)
+    allCorners = np.concatenate((corners1, warpedCorners2), axis=0)
+    [xMin, yMin] = np.int32(allCorners.min(axis=0).ravel() - 0.5)
+    [xMax, yMax] = np.int32(allCorners.max(axis=0).ravel() + 0.5)
+    translation = np.float32(([1,0,-1*xMin],[0,1,-1*yMin],[0,0,1]))
+    fullTransformation = np.dot(translation,Homog21)
+
+    warpedImage1 = cv2.warpPerspective(image1, translation, (xMax-xMin, yMax-yMin))
+    warpedImage2 = cv2.warpPerspective(image2, fullTransformation, (xMax-xMin, yMax-yMin))
+    result = warpedImage1/2 + warpedImage2/2
+    display("result",result)
+    return result
 
     '''
     print "xMin %f" %xMin
