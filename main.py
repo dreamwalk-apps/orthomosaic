@@ -17,13 +17,20 @@ i = 0
 rawReferenceImage = allImages[i]
 M = util.computeUnRotMatrix(dataMatrix[i,:])
 referenceImage = util.warpWithPadding(rawReferenceImage,M) #use corrected first image as reference image
+contents = []
+contents.append(referenceImage)
 #util.display("corrected",referenceImage)
 for i in range(1,len(allImages)):
+    print "contents %i" %len(contents)
     image = allImages[i]
     M = util.computeUnRotMatrix(dataMatrix[i,:])
     correctedImage = util.warpWithPadding(image,M)
     #util.display("corrected",correctedImage)
-    result = util.merge(referenceImage,correctedImage)
+    combinedResult, warpedImage = util.merge(referenceImage,correctedImage,contents)
+    referenceImage = combinedResult
+    contents.append(warpedImage)
+
+util.display("COMBINED RESULT", combinedResult)
 
 '''
 stitched = paddedImg1/2 + warpedImg2/2
