@@ -24,7 +24,7 @@ for i in range(1,len(allImages)):
     correctedImage = util.warpWithPadding(image,M)
     #util.display("corrected",correctedImage)
     result = util.merge(referenceImage,correctedImage)
-    referenceImage = result
+
 '''
 stitched = paddedImg1/2 + warpedImg2/2
 cv2.namedWindow("stitched",cv2.WINDOW_NORMAL)

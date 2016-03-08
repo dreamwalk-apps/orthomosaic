@@ -106,11 +106,11 @@ def drawMatches(img1, kp1, img2, kp2, matches):
 
     # For each pair of points we have between both images
     # draw circles, then connect a line between them
-    for mat in matches:
+    for match in matches:
 
         # Get the matching keypoints for each of the images
-        img1_idx = mat.queryIdx
-        img2_idx = mat.trainIdx
+        img1_idx = match.queryIdx
+        img2_idx = match.trainIdx
 
         # x - columns
         # y - rows
@@ -162,47 +162,96 @@ def merge(image1,image2):
         result: second image warped into first image
     '''
 
-    '''
-    Feature detection and matching
-    '''
+    '''Feature detection and matching'''
 
     detector = cv2.ORB()
-    matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=True)
+    matcher = cv2.BFMatcher(cv2.NORM_HAMMING2, crossCheck=True)
     gray1 = cv2.cvtColor(image1,cv2.COLOR_BGR2GRAY)
-    keypoints1, descriptors1 = detector.detectAndCompute(gray1,None)
-    #result1 = cv2.drawKeypoints(image1,keypoints1,color=(0,0,255))
+    kp1, descriptors1 = detector.detectAndCompute(gray1,None)
     gray2 = cv2.cvtColor(image2,cv2.COLOR_BGR2GRAY)
-    keypoints2, descriptors2 = detector.detectAndCompute(gray2,None)
-    #result2 = cv2.drawKeypoints(image2,keypoints2,color=(0,0,255))
+    kp2, descriptors2 = detector.detectAndCompute(gray2,None)
     matches = matcher.match(descriptors2,descriptors1)
-    visualization = drawMatches(gray1,keypoints1,gray2,keypoints2,matches)
+
+
+
+    '''
+    gray1 = cv2.cvtColor(image1,cv2.COLOR_BGR2GRAY)
+    gray2 = cv2.cvtColor(image2,cv2.COLOR_BGR2GRAY)
+    sift = cv2.SIFT()
+
+    # find the keypoints and descriptors with SIFT
+    kp1, des1 = sift.detectAndCompute(gray1,None)
+    kp2, des2 = sift.detectAndCompute(gray2,None)
+
+    # BFMatcher with default params
+    bf = cv2.BFMatcher()
+    matches = bf.knnMatch(des2,des1, k=2)
+    '''
+    '''
+    # Apply ratio test
+    goodMatches = []
+    for m,n in matches:
+        #print m
+        #print n
+        if m.distance < 0.75*n.distance:
+            goodMatches.append(m)
+    '''
+
+
+    visualization = drawMatches(gray1,kp1,gray2,kp2,matches)
     display("matches",visualization)
 
-    '''
-    Compute Affine Transform
-    '''
-
-    #Homography to warp image2 into image 1
-    src_pts = np.float32([ keypoints2[m.queryIdx].pt for m in matches ]).reshape(-1,1,2)
-    dst_pts = np.float32([ keypoints1[m.trainIdx].pt for m in matches ]).reshape(-1,1,2)
+    '''Compute Affine Transform'''
+    src_pts = np.float32([ kp2[m.queryIdx].pt for m in matches ]).reshape(-1,1,2)
+    dst_pts = np.float32([ kp1[m.trainIdx].pt for m in matches ]).reshape(-1,1,2)
+    print src_pts
+    print dst_pts
     #H = cv2.findHomography(src_pts,dst_pts,method=cv2.RANSAC,ransacReprojThreshold=0.1)
     #Homog21 = H[0] #3x3 homography matrix from img2 to img1
     A = cv2.estimateRigidTransform(src_pts,dst_pts,fullAffine=False)
-    Homog21 = np.float32(([A[0,0],A[0,1],A[0,2]],[A[1,0],A[1,1],A[1,2]],[0,0,1]))
+    print "A"
+    print A
+    #Homog21 = np.float32(([A[0,0],A[0,1],A[0,2]],[A[1,0],A[1,1],A[1,2]],[0,0,1]))
 
+    '''Compute Corners'''
     height1,width1 = image1.shape[:2]
     height2,width2 = image2.shape[:2]
-    corners1 = np.float32([[0,0],[0,height1],[width1,height1],[width1,0]]).reshape(-1,1,2)
-    corners2 = np.float32([[0,0],[0,height2],[width2,height2],[width2,0]]).reshape(-1,1,2)
-    warpedCorners2 = cv2.perspectiveTransform(corners2, Homog21)
+    corners1 = np.float32(([0,0],[0,height1],[width1,height1],[width1,0]))
+    corners2 = np.float32(([0,0],[0,height2],[width2,height2],[width2,0]))
+    warpedCorners2 = np.zeros((4,2))
+    for i in range(0,4):
+        cornerX = corners2[i,0]
+        cornerY = corners2[i,1]
+        warpedCorners2[i,0] = A[0,0]*cornerX + A[0,1]*cornerY + A[0,2]
+        warpedCorners2[i,1] = A[1,0]*cornerX + A[1,1]*cornerY + A[1,2]
+
+    #corners1 = np.float32([[0,0],[0,height1],[width1,height1],[width1,0]]).reshape(-1,1,2)
+    #corners2 = np.float32([[0,0],[0,height2],[width2,height2],[width2,0]]).reshape(-1,1,2)
+    #warpedCorners2 = cv2.warpAffine(corners2,A,(corners2.shape[1],corners2.shape[0]),)#cv2.perspectiveTransform(corners2, Homog21)
+
+    print "corners1"
+    print corners1
+    print "corners2"
+    print corners2
+    print "warpedCorners2"
+    print warpedCorners2
+
+
     allCorners = np.concatenate((corners1, warpedCorners2), axis=0)
     [xMin, yMin] = np.int32(allCorners.min(axis=0).ravel() - 0.5)
     [xMax, yMax] = np.int32(allCorners.max(axis=0).ravel() + 0.5)
+
+    print "xMin %f" %xMin
+    print "xMax %f" %xMax
+    print "yMin %f" %yMin
+    print "yMax %f" %yMax
+
     translation = np.float32(([1,0,-1*xMin],[0,1,-1*yMin],[0,0,1]))
-    fullTransformation = np.dot(translation,Homog21)
+    #fullTransformation = np.dot(A,translation)
 
     warpedImage1 = cv2.warpPerspective(image1, translation, (xMax-xMin, yMax-yMin))
-    warpedImage2 = cv2.warpPerspective(image2, fullTransformation, (xMax-xMin, yMax-yMin))
+    warpedImageTemp = cv2.warpPerspective(image2, translation, (xMax-xMin, yMax-yMin))
+    warpedImage2 = cv2.warpAffine(warpedImageTemp, A, (xMax-xMin, yMax-yMin))
     result = warpedImage1/2 + warpedImage2/2
     display("result",result)
     return result
