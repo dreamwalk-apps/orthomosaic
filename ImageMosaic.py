@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
-import drawMatches as dm
 import utilities as util
+import geometry as gm
 
 '''
 Data input
@@ -15,18 +15,18 @@ Removing Perspective Distortion
 '''
 i = 0
 rawReferenceImage = allImages[i]
-M = util.computeUnRotMatrix(dataMatrix[i,:])
-referenceImage = util.warpWithPadding(rawReferenceImage,M) #use corrected first image as reference image
+M = gm.computeUnRotMatrix(dataMatrix[i,:])
+referenceImage = gm.warpWithPadding(rawReferenceImage,M) #use corrected first image as reference image
 contents = []
 contents.append(referenceImage)
 #util.display("corrected",referenceImage)
 for i in range(1,len(allImages)):
     print "contents %i" %len(contents)
     image = allImages[i]
-    M = util.computeUnRotMatrix(dataMatrix[i,:])
-    correctedImage = util.warpWithPadding(image,M)
+    M = gm.computeUnRotMatrix(dataMatrix[i,:])
+    correctedImage = gm.warpWithPadding(image,M)
     #util.display("corrected",correctedImage)
-    combinedResult, warpedImage = util.merge(referenceImage,correctedImage,contents)
+    combinedResult, warpedImage = gm.merge(referenceImage,correctedImage,contents)
     referenceImage = combinedResult
     contents.append(warpedImage)
 
