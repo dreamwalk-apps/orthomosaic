@@ -75,8 +75,38 @@ def warpWithPadding(image,transformation):
         padded: ndArray image enlarged to exactly fit image warped by transformation
     '''
 
+    height = image.shape[0]
+    width = image.shape[1]
+    corners = np.float32([[0,0],[0,height],[width,height],[width,0]]).reshape(-1,1,2)
+
+    warpedCorners = cv2.perspectiveTransform(corners, transformation)
+    [xMin, yMin] = np.int32(warpedCorners.min(axis=0).ravel() - 0.5)
+    [xMax, yMax] = np.int32(warpedCorners.max(axis=0).ravel() + 0.5)
+    translation = np.array(([1,0,-1*xMin],[0,1,-1*yMin],[0,0,1]))
+    fullTransformation = np.dot(translation,transformation)
+    result = cv2.warpPerspective(image, fullTransformation, (xMax-xMin, yMax-yMin))
+
+    return result
+
+
+
+    '''
+    print "xMin %f" %xMin
+    print "xMax %f" %xMax
+    print "yMin %f" %yMin
+    print "yMax %f" %yMax
+    print "corners"
+    print corners
+    print "warped corners"
+    print warpedCorners
+    newWarpedCorners = cv2.perspectiveTransform(corners, fullTransformation)
+    print "new warped corners"
+    print newWarpedCorners
+    '''
+
     '''
     Compute Corners
+    '''
     '''
     #compute corner locations of undistorted rectangular image
     cornersImg = []
@@ -84,14 +114,7 @@ def warpWithPadding(image,transformation):
     cornersImg.append(np.array(([image.shape[0]],[0],[1])))
     cornersImg.append(np.array(([image.shape[0]],[image.shape[1]],[1])))
     cornersImg.append(np.array(([0],[image.shape[1]],[1])))
-
-    height = image.shape[0]
-    width = image.shape[1]
-    corners = np.float32([[0,0],[0,height],[width,height],[width,0]]).reshape(-1,1,2)
-
-    warpedCorners = cv2.perspectiveTransform(corners, transformation)
-    [xmin, ymin] = np.int32(warpedCorners.min(axis=0).ravel() - 0.5)
-    [xmax, ymax] = np.int32(warpedCorners.max(axis=0).ravel() + 0.5)
+    '''
     '''
     #keep track of min and max row and column locations in warped image to know how much to pad original image
     minRLoc = 0
