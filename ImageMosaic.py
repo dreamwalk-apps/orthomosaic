@@ -1,35 +1,15 @@
-import cv2
-import numpy as np
 import utilities as util
-import geometry as gm
+import Combiner
 
-'''
-Data input
-'''
+
+'''Data Input '''
 fileName = "datasets/imageData.txt"
 imageDirectory = "datasets/images/"
 dataMatrix, allImages = util.importData(fileName, imageDirectory)
 
-'''
-Removing Perspective Distortion
-'''
-i = 0
-rawReferenceImage = allImages[i]
-M = gm.computeUnRotMatrix(dataMatrix[i,:])
-referenceImage = gm.warpWithPadding(rawReferenceImage,M) #use corrected first image as reference image
-contents = []
-contents.append(referenceImage)
-#util.display("corrected",referenceImage)
-for i in range(1,len(allImages)):
-    print "contents %i" %len(contents)
-    image = allImages[i]
-    M = gm.computeUnRotMatrix(dataMatrix[i,:])
-    correctedImage = gm.warpWithPadding(image,M)
-    #util.display("corrected",correctedImage)
-    combinedResult, warpedImage = gm.merge(referenceImage,correctedImage,contents)
-    referenceImage = combinedResult
-    contents.append(warpedImage)
-
+'''Remove Perspective Distortion'''
+myCombiner = Combiner.Combiner(allImages,dataMatrix)
+combinedResult = myCombiner.createMosaic()
 util.display("COMBINED RESULT", combinedResult)
 
 '''
