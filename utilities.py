@@ -17,7 +17,6 @@ def importData(fileName, imageDirectory):
     fileNameMatrix = np.genfromtxt(fileName,delimiter=",",usecols=[0],dtype=str) #read filen name strings
     for i in range(0,fileNameMatrix.shape[0]): #read images
         allImages.append(cv2.imread(imageDirectory+fileNameMatrix[i]))
-    print "Read data for %i images." % fileNameMatrix.shape[0]
     return dataMatrix, allImages
 
 
@@ -34,7 +33,7 @@ def display(title, image):
     cv2.namedWindow(title,cv2.WINDOW_NORMAL)
     cv2.resizeWindow(title,1920,1080)
     cv2.imshow(title,image)
-    cv2.waitKey(500)
+    cv2.waitKey(400)
     cv2.destroyWindow(title)
 
 def drawMatches(img1, kp1, img2, kp2, matches):

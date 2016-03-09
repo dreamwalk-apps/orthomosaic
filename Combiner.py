@@ -109,5 +109,6 @@ class Combiner:
         #self.referenceImage = result
         self.resultImage = result
         util.display("result",result)
+        cv2.imwrite("results/intermediateResult"+str(index2)+".png",result)
         return result
 
