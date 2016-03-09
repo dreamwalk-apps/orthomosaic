@@ -12,4 +12,6 @@ This project was developed and tested on Ubuntu 15.10. It depends on NumPy 1.8.2
 5. In terminal: sudo apt-get install python-numpy python-opencv
 6. In terminal: python ImageMosaic.py
 
+Results will be stored in an automatically generated your-path-here/ImageMosaic/results directory.
+
 
