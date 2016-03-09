@@ -33,12 +33,12 @@ def computeUnRotMatrix(pose):
     InvR = np.linalg.inv(Rtrans)
     return InvR
 
-def warpPerspectiveWithPadding(image,transformation,kp):
+def warpPerspectiveWithPadding(image,transformation):
     '''
     :param image: ndArray image
     :param transformation: 3x3 ndArray representing perspective trransformation
     :param kp: keypoints associated with image
-    :return: transformed image and transformed keypoints
+    :return: transformed image
     '''
 
     height = image.shape[0]
@@ -51,15 +51,10 @@ def warpPerspectiveWithPadding(image,transformation,kp):
     translation = np.array(([1,0,-1*xMin],[0,1,-1*yMin],[0,0,1]))
     fullTransformation = np.dot(translation,transformation)
     result = cv2.warpPerspective(image, fullTransformation, (xMax-xMin, yMax-yMin))
-    newKP = perspectiveTransformKeypoints(kp,fullTransformation)
-    return result, newKP
+    return result
 
+'''
 def affineTransformKeypoints(kp,A):
-    '''
-    :param kp: keypoints as returned by funcitons like
-    :param A: 2x3 affine transformation matrix
-    :return: new set of transformed keypoints
-    '''
     newKP = copy.copy(kp)
     for i in range(0,len(kp)):
         oldX = kp[i].pt[0]
@@ -70,11 +65,6 @@ def affineTransformKeypoints(kp,A):
     return newKP
 
 def perspectiveTransformKeypoints(kp, M):
-    '''
-    :param kp: keypoints as returned by funcitons like
-    :param M: 3x3 transformation matrix
-    :return: new set of transformed keypoints
-    '''
     newKP = copy.copy(kp)
     for i in range(0,len(kp)):
         oldX = kp[i].pt[0]
@@ -83,3 +73,4 @@ def perspectiveTransformKeypoints(kp, M):
         newY = (M[1,0]*oldX + M[1,1]*oldY + M[1,2])/(M[2,0]*oldX + M[2,1]*oldY + M[2,2])
         newKP[i].pt = (newX,newY)
     return newKP
+'''

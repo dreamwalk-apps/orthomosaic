@@ -77,11 +77,11 @@ def drawMatches(img1, kp1, img2, kp2, matches):
 
     # For each pair of points we have between both images
     # draw circles, then connect a line between them
-    for match in matches:
+    for m in matches:
 
         # Get the matching keypoints for each of the images
-        img1_idx = match.queryIdx
-        img2_idx = match.trainIdx
+        img1_idx = m.queryIdx
+        img2_idx = m.trainIdx
 
         # x - columns
         # y - rows

@@ -11,11 +11,10 @@ class Combiner:
         self.dataMatrix = dataMatrix_
         detector = cv2.ORB()
         for i in range(0,len(imageList_)):
-            image = imageList_[i]
+            image = imageList_[i][::2,::2,:]
             gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
-            kp = detector.detect(image,None)
             M = gm.computeUnRotMatrix(self.dataMatrix[i,:])
-            correctedImage, correctedKP = gm.warpPerspectiveWithPadding(imageList_[i],M,kp)
+            correctedImage = gm.warpPerspectiveWithPadding(imageList_[i],M)
             self.imageList.append(correctedImage)
         self.resultImage = self.imageList[0]
     def createMosaic(self):
@@ -35,7 +34,7 @@ class Combiner:
         #kp2 = copy.copy(self.kpList[index2])
 
         '''Descriptor computation and matching'''
-        detector = cv2.ORB(1000)
+        detector = cv2.SURF(2000) #cv2.ORB(1000)
         gray1 = cv2.cvtColor(image1,cv2.COLOR_BGR2GRAY)
         ret1, mask1 = cv2.threshold(gray1,1,255,cv2.THRESH_BINARY)
         kp1, descriptors1 = detector.detectAndCompute(gray1,mask1)
@@ -58,9 +57,16 @@ class Combiner:
         test = cv2.drawKeypoints(image2,kp2,color=(0,0,255))
         util.display("TEST",test)
 
-        matcher = cv2.BFMatcher(cv2.NORM_HAMMING2, crossCheck=True)
-        matches = matcher.match(descriptors2,descriptors1)
-        matchDrawing = util.drawMatches(gray1,kp1,gray2,kp2,matches)
+        matcher = cv2.BFMatcher()#cv2.BFMatcher(cv2.NORM_HAMMING2, crossCheck=True)
+        matches = matcher.knnMatch(descriptors2,descriptors1, k=2)#matcher.match(descriptors2,descriptors1)
+        #prune bad matches
+        good = []
+        for m,n in matches:
+            if m.distance < 0.75*n.distance:
+                good.append(m)
+        matches = copy.copy(good)
+
+        matchDrawing = util.drawMatches(gray2,kp2,gray1,kp1,matches)
         util.display("matches",matchDrawing)
 
         src_pts = np.float32([ kp2[m.queryIdx].pt for m in matches ]).reshape(-1,1,2)
