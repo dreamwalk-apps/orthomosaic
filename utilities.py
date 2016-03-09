@@ -38,25 +38,7 @@ def display(title, image):
 
 def drawMatches(img1, kp1, img2, kp2, matches):
     """
-    My own implementation of cv2.drawMatches as OpenCV 2.4.9
-    does not have this function available but it's supported in
-    OpenCV 3.0.0
-
-    This function takes in two images with their associated
-    keypoints, as well as a list of DMatch data structure (matches)
-    that contains which keypoints matched in which images.
-
-    An image will be produced where a montage is shown with
-    the first image followed by the second image beside it.
-
-    Keypoints are delineated with circles, while lines are connected
-    between matching keypoints.
-
-    img1,img2 - Grayscale images
-    kp1,kp2 - Detected list of keypoints through any of the OpenCV keypoint
-              detection algorithms
-    matches - A list of matches of corresponding keypoints through any
-              OpenCV keypoint matching algorithm
+    drawMatches() is missing in OpenCV 2. This boilerplate implementation taken from http://stackoverflow.com/questions/20259025/module-object-has-no-attribute-drawmatches-opencv-python
     """
 
     # Create a new output image that concatenates the two images together
