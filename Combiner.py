@@ -49,8 +49,8 @@ class Combiner:
         test = cv2.drawKeypoints(image2,kp2,color=(0,0,255))
         util.display("TEST",test)
 
-        matcher = cv2.BFMatcher()#cv2.BFMatcher(cv2.NORM_HAMMING2, crossCheck=True)
-        matches = matcher.knnMatch(descriptors2,descriptors1, k=2)#matcher.match(descriptors2,descriptors1)
+        matcher = cv2.BFMatcher()
+        matches = matcher.knnMatch(descriptors2,descriptors1, k=2)
         #prune bad matches
         good = []
         for m,n in matches:
@@ -69,6 +69,7 @@ class Combiner:
         if A == None: #if affine transform doesn't work, try full homography. OpenCV RANSAC for homography is better?
             HomogResult = cv2.findHomography(src_pts,dst_pts,method=cv2.RANSAC)
             H = HomogResult[0]
+
         '''Compute 4 Image Corners Locations'''
         height1,width1 = image1.shape[:2]
         height2,width2 = image2.shape[:2]
