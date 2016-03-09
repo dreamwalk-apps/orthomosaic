@@ -35,6 +35,7 @@ class Combiner:
         '''
 
         #Attempt to combine one pair of images at each step. Assume the order in which the images are given is the best order.
+        #This intorduces drift!
         image1 = copy.copy(self.imageList[index2 - 1])
         image2 = copy.copy(self.imageList[index2])
 
@@ -43,6 +44,7 @@ class Combiner:
         Idea: Align the images by aligning features.
         '''
         detector = cv2.SURF(500) #SURF showed best results
+        detector.extended = True
         gray1 = cv2.cvtColor(image1,cv2.COLOR_BGR2GRAY)
         ret1, mask1 = cv2.threshold(gray1,1,255,cv2.THRESH_BINARY)
         kp1, descriptors1 = detector.detectAndCompute(gray1,mask1) #kp = keypoints
@@ -62,7 +64,7 @@ class Combiner:
         #prune bad matches
         good = []
         for m,n in matches:
-            if m.distance < 0.50*n.distance:
+            if m.distance < 0.55*n.distance:
                 good.append(m)
         matches = copy.copy(good)
 
