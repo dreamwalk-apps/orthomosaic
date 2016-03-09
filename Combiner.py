@@ -12,9 +12,8 @@ class Combiner:
         detector = cv2.ORB()
         for i in range(0,len(imageList_)):
             image = imageList_[i][::2,::2,:]
-            gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
             M = gm.computeUnRotMatrix(self.dataMatrix[i,:])
-            correctedImage = gm.warpPerspectiveWithPadding(imageList_[i],M)
+            correctedImage = gm.warpPerspectiveWithPadding(image,M)
             self.imageList.append(correctedImage)
         self.resultImage = self.imageList[0]
     def createMosaic(self):
@@ -74,8 +73,7 @@ class Combiner:
 
         '''Compute Affine Transform'''
         A = cv2.estimateRigidTransform(src_pts,dst_pts,fullAffine=False)
-        if A == None:
-            print "FINDING AFFINE TRANSFORM FAILED. ATTEMPT FULL HOMOGRAPHY"
+        if A == None: #if affine transform doesn't work, try full homography. OpenCV RANSAC for homography is better?
             HomogResult = cv2.findHomography(src_pts,dst_pts,method=cv2.RANSAC)
             H = HomogResult[0]
         '''Compute 4 Image Corners Locations'''
