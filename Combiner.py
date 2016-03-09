@@ -90,11 +90,11 @@ class Combiner:
         #warpedRefImg[:,:,0] = warpedRefImg[:,:,0]*mask2
         #warpedRefImg[:,:,1] = warpedRefImg[:,:,1]*mask2
         #warpedRefImg[:,:,2] = warpedRefImg[:,:,2]*mask2
-        #warpedImage2[:,:,0] = warpedImage2[:,:,0]*mask1
-        #warpedImage2[:,:,1] = warpedImage2[:,:,1]*mask1
-        #warpedImage2[:,:,2] = warpedImage2[:,:,2]*mask1
+        warpedImage2[:,:,0] = warpedImage2[:,:,0]*mask1
+        warpedImage2[:,:,1] = warpedImage2[:,:,1]*mask1
+        warpedImage2[:,:,2] = warpedImage2[:,:,2]*mask1
 
-        '''
+
         black_img = warpedImage1.astype(float)
         white_img = warpedImage2.astype(float)
         mask_img = mask1.astype(float)
@@ -107,68 +107,8 @@ class Combiner:
         result[:,:,0] = result[:,:,0]*mask4
         result[:,:,1] = result[:,:,1]*mask4
         result[:,:,2] = result[:,:,2]*mask4
-        '''
-        result = pyramidBlend(warpedImage1,warpedImage2,cv2.merge([mask1,mask1,mask1]))
-        #result = warpedImage1 + warpedImage2
-        #result = pyramidBlending.pyramidBlend(warpedImage1,warpedImage2,mask1)
+
         util.display("result",result)
         cv2.imwrite("result.png",result)
         return result
-def pyramidBlend(A,B,mask):
-    # generate Gaussian pyramid for A
-    G = A.copy()
-    gpA = [G]
-    for i in xrange(6):
-        G = cv2.pyrDown(G)
-        gpA.append(G)
 
-    # generate Gaussian pyramid for B
-    G = B.copy()
-    gpB = [G]
-    for i in xrange(6):
-        G = cv2.pyrDown(G)
-        gpB.append(G)
-
-    # generate Gaussian pyramid for mask
-    G = mask.copy()
-    gpM = [G]
-    for i in xrange(6):
-        G = cv2.pyrDown(G)
-        gpM.append(G)
-
-    # generate Laplacian Pyramid for A
-    lpA = [gpA[5]]
-    for i in xrange(5,0,-1):
-        GE = cv2.pyrUp(gpA[i])
-        L = cv2.subtract(gpA[i-1],GE)
-        lpA.append(L)
-
-    # generate Laplacian Pyramid for B
-    lpB = [gpB[5]]
-    for i in xrange(5,0,-1):
-        GE = cv2.pyrUp(gpB[i])
-        L = cv2.subtract(gpB[i-1],GE)
-        lpB.append(L)
-
-    # generate Laplacian Pyramid for mask
-    lpM = [gpM[5]]
-    for i in xrange(5,0,-1):
-        GE = cv2.pyrUp(gpM[i])
-        L = cv2.subtract(gpM[i-1],GE)
-        lpM.append(L)
-
-    # Now add left and right halves of images in each level
-    LS = []
-    for la,lb,lm in zip(lpA,lpB,lpM):
-        #rows,cols,dpt = la.shape
-        #ls = np.hstack((la[:,0:cols/2], lb[:,cols/2:]))
-        ls = la*lm + lb*(-1*lm)
-        LS.append(ls)
-
-    # now reconstruct
-    ls_ = LS[0]
-    for i in xrange(1,6):
-        ls_ = cv2.pyrUp(ls_)
-        ls_ = cv2.add(ls_, LS[i])
-
-    return ls_
