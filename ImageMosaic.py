@@ -1,16 +1,39 @@
 import utilities as util
 import Combiner
+import geometry as gm
+import cv2
+import numpy as np
+import copy
 
-
-'''Data Input '''
 fileName = "datasets/imageData.txt"
 imageDirectory = "datasets/images/"
 dataMatrix, allImages = util.importData(fileName, imageDirectory)
+myCombiner = Combiner.Combiner(allImages,dataMatrix)
 
-'''Remove Perspective Distortion'''
+
+
+
+
+
+
+
+
+
+
+'''
 myCombiner = Combiner.Combiner(allImages,dataMatrix)
 combinedResult = myCombiner.createMosaic()
 util.display("COMBINED RESULT", combinedResult)
+'''
+
+
+
+
+
+
+
+
+
 
 '''
 stitched = paddedImg1/2 + warpedImg2/2

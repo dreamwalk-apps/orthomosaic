@@ -6,12 +6,20 @@ import pyramidBlending
 
 class Combiner:
     def __init__(self,imageList_,dataMatrix_):
-        self.imageList = imageList_
+        self.imageList = []
+        self.kpList = []
         self.dataMatrix = dataMatrix_
-        M = gm.computeUnRotMatrix(self.dataMatrix[0,:])
-        self.referenceImage = gm.warpWithPadding(self.imageList[0],M)
-        self.result = self.referenceImage
-        self.warpedImageList = []
+        detector = cv2.ORB()
+        for i in range(0,len(imageList_)):
+            image = imageList_[i]
+            gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+            kp = detector.detect(image,None)
+            M = gm.computeUnRotMatrix(self.dataMatrix[i,:])
+            correctedImage, correctedKP = gm.warpPerspectiveWithPadding(imageList_[i],M,kp)
+            self.imageList.append(correctedImage)
+            self.kpList.append(correctedKP)
+            test = cv2.drawKeypoints(correctedImage,correctedKP,color=(0,0,255))
+            util.display("TEST",test)
 
     def createMosaic(self):
         for i in range(1,len(self.imageList)):
@@ -22,14 +30,13 @@ class Combiner:
             self.result = combinedResult
         return self.result
 
-    def combine(self, image1, image2):
+    def combine(self, index1, index2):
         '''
-        Adds second image to the first image. Assumes images have already been corrected.
-        Arguments:
-            image1 & image2: ndArrays already processed with computeUnRotMatrix() and warpWithPadding
-        Returns:
-            result
+        :param index1: index of self.imageList and self.kpList to combine
+        :param index2: index of self.imageList and self.kpList to combine
+        :return:
         '''
+        
 
         '''Feature detection and matching'''
         detector = cv2.ORB()
@@ -78,12 +85,7 @@ class Combiner:
 
         '''Compute Mask for Image Combination'''
         ret, mask1 = cv2.threshold(warpedGray1,1,255,cv2.THRESH_BINARY_INV)
-        ret, mask2 = cv2.threshold(warpedGray1,1,255,cv2.THRESH_BINARY)
-        ret, mask3 = cv2.threshold(warpedGray2,1,255,cv2.THRESH_BINARY)
-
         mask1 = np.float32(mask1)/255
-        #mask4 = mask2 + mask3
-        #mask4 = np.float32(mask4)/255
 
         warpedImage2[:,:,0] = warpedImage2[:,:,0]*mask1
         warpedImage2[:,:,1] = warpedImage2[:,:,1]*mask1
