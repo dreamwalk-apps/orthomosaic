@@ -1,8 +1,6 @@
 import numpy as np
 import cv2
 import math as m
-import copy
-import utilities as util
 
 def computeUnRotMatrix(pose):
     '''
@@ -52,25 +50,3 @@ def warpPerspectiveWithPadding(image,transformation):
     fullTransformation = np.dot(translation,transformation)
     result = cv2.warpPerspective(image, fullTransformation, (xMax-xMin, yMax-yMin))
     return result
-
-'''
-def affineTransformKeypoints(kp,A):
-    newKP = copy.copy(kp)
-    for i in range(0,len(kp)):
-        oldX = kp[i].pt[0]
-        oldY = kp[i].pt[1]
-        newX = A[0,0]*oldX + A[0,1]*oldY + A[0,2]
-        newY = A[1,0]*oldX + A[1,1]*oldY + A[1,2]
-        newKP[i].pt = (newX,newY)
-    return newKP
-
-def perspectiveTransformKeypoints(kp, M):
-    newKP = copy.copy(kp)
-    for i in range(0,len(kp)):
-        oldX = kp[i].pt[0]
-        oldY = kp[i].pt[1]
-        newX = (M[0,0]*oldX + M[0,1]*oldY + M[0,2])/(M[2,0]*oldX + M[2,1]*oldY + M[2,2])
-        newY = (M[1,0]*oldX + M[1,1]*oldY + M[1,2])/(M[2,0]*oldX + M[2,1]*oldY + M[2,2])
-        newKP[i].pt = (newX,newY)
-    return newKP
-'''

@@ -2,7 +2,6 @@ import cv2
 import numpy as np
 import utilities as util
 import geometry as gm
-import pyramidBlending
 import copy
 
 class Combiner:
@@ -29,8 +28,6 @@ class Combiner:
 
         image1 = copy.copy(self.imageList[index2 - 1])
         image2 = copy.copy(self.imageList[index2])
-        #kp1 = copy.copy(self.referenceKP)
-        #kp2 = copy.copy(self.kpList[index2])
 
         '''Descriptor computation and matching'''
         detector = cv2.SURF(2000) #cv2.ORB(1000)
@@ -42,15 +39,6 @@ class Combiner:
         ret2, mask2 = cv2.threshold(gray2,1,255,cv2.THRESH_BINARY)
         kp2, descriptors2 = detector.detectAndCompute(gray2,mask2)
 
-        '''
-        if index2 > 1:
-            gray_p = cv2.cvtColor(self.imageList[index2-1],cv2.COLOR_BGR2GRAY)
-            ret_p, mask_p = cv2.threshold(gray_p,1,255,cv2.THRESH_BINARY)
-            kp_p, descriptors_p = detector.detectAndCompute(gray_p,mask_p)
-
-            kp1 = kp1 + kp_p
-            descriptors2 = descriptors2 + descriptors_p
-        '''
         test = cv2.drawKeypoints(image1,kp1,color=(0,0,255))
         util.display("TEST",test)
         test = cv2.drawKeypoints(image2,kp2,color=(0,0,255))
@@ -106,11 +94,6 @@ class Combiner:
             warpedImage2 = cv2.warpAffine(warpedImageTemp, A, (xMax-xMin, yMax-yMin))
         self.imageList[index2] = copy.copy(warpedImage2) #crucial: update old images for future feature extractions
 
-        '''
-        #crucial: update old images for future feature extractions
-        for i in range(0,index2 + 1)
-            self.imageList[i] =
-        '''
         resGray = cv2.cvtColor(self.resultImage,cv2.COLOR_BGR2GRAY)
         warpedResGray = cv2.warpPerspective(resGray, translation, (xMax-xMin, yMax-yMin))
 
