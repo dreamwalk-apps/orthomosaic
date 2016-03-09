@@ -42,7 +42,7 @@ class Combiner:
         Descriptor computation and matching.
         Idea: Align the images by aligning features.
         '''
-        detector = cv2.SURF(2000) #SURF showed best results
+        detector = cv2.SURF(500) #SURF showed best results
         gray1 = cv2.cvtColor(image1,cv2.COLOR_BGR2GRAY)
         ret1, mask1 = cv2.threshold(gray1,1,255,cv2.THRESH_BINARY)
         kp1, descriptors1 = detector.detectAndCompute(gray1,mask1) #kp = keypoints
@@ -62,7 +62,7 @@ class Combiner:
         #prune bad matches
         good = []
         for m,n in matches:
-            if m.distance < 0.75*n.distance:
+            if m.distance < 0.50*n.distance:
                 good.append(m)
         matches = copy.copy(good)
 
