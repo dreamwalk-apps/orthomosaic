@@ -3,7 +3,7 @@
 This Python + OpenCV project creates a mosaic given a dataset of n images and corresponding camera poses.
 
 ### Installation
-This project was developed and tested on Ubuntu 15.10. Install and execute this project using the following commands:
+This project was developed and tested on Ubuntu 15.10. It depends on NumPy 1.8.2 and OpenCV 2.4.11. Install and execute this project using the following commands:
 
 1. In terminal: git clone https://github.com/alexhagiopol/ImageMosaic.git
 2. In terminal: cd ImageMosaic
