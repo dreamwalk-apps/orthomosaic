@@ -15,7 +15,7 @@ def importData(fileName, imageDirectory):
     fileNameMatrix = np.genfromtxt(fileName,delimiter=",",usecols=[0],dtype=str) #read filen name strings
     for i in range(0,fileNameMatrix.shape[0]): #read images
         allImages.append(cv2.imread(imageDirectory+fileNameMatrix[i]))
-    return dataMatrix, allImages
+    return allImages, dataMatrix
 
 def display(title, image):
     '''
@@ -33,6 +33,7 @@ def display(title, image):
 
 def drawMatches(img1, kp1, img2, kp2, matches):
     """
+    Makes an image with matched features denoted.
     drawMatches() is missing in OpenCV 2. This boilerplate implementation taken from http://stackoverflow.com/questions/20259025/module-object-has-no-attribute-drawmatches-opencv-python
     """
 
