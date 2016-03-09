@@ -4,11 +4,9 @@ import numpy as np
 
 def importData(fileName, imageDirectory):
     '''
-    Arguments:
-        fileName: Name of the pose data file in string form e.g. "datasets/imageData.txt"
-        imageDirectory: Name of the directory where images arer stored in string form e.g. "datasets/images/"
-    Returns:
-        dataMatrix: A NumPy ndArray contaning all of the pose data. Each row stores 6 floats containing pose information in XYZYPR form
+    :param fileName: Name of the pose data file in string form e.g. "datasets/imageData.txt"
+    :param imageDirectory: Name of the directory where images arer stored in string form e.g. "datasets/images/"
+    :return: dataMatrix: A NumPy ndArray contaning all of the pose data. Each row stores 6 floats containing pose information in XYZYPR form
         allImages: A Python List of NumPy ndArrays containing images.
     '''
 
@@ -19,15 +17,12 @@ def importData(fileName, imageDirectory):
         allImages.append(cv2.imread(imageDirectory+fileNameMatrix[i]))
     return dataMatrix, allImages
 
-
-
 def display(title, image):
     '''
     OpenCV machinery for showing an image until the user presses a key.
-    Arguments:
-        title: Window title in string form
-        image: ndArray containing image to show
-    No returns.
+    :param title: Window title in string form
+    :param image: ndArray containing image to show
+    :return:
     '''
 
     cv2.namedWindow(title,cv2.WINDOW_NORMAL)

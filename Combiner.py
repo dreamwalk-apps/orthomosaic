@@ -6,6 +6,11 @@ import copy
 
 class Combiner:
     def __init__(self,imageList_,dataMatrix_):
+        '''
+        :param imageList_: List of all images in dataset.
+        :param dataMatrix_: Matrix with all pose data in dataset.
+        :return:
+        '''
         self.imageList = []
         self.dataMatrix = dataMatrix_
         detector = cv2.ORB()
