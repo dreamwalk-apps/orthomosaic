@@ -82,33 +82,14 @@ class Combiner:
         ret, mask3 = cv2.threshold(warpedGray2,1,255,cv2.THRESH_BINARY)
 
         mask1 = np.float32(mask1)/255
-        mask4 = mask2 + mask3
-        mask4 = np.float32(mask4)/255
-        #mask1 = (np.float32(mask1)/255 + 1)/2
-        #mask2 = (np.float32(mask2)/255 + 1)/2
+        #mask4 = mask2 + mask3
+        #mask4 = np.float32(mask4)/255
 
-        #warpedRefImg[:,:,0] = warpedRefImg[:,:,0]*mask2
-        #warpedRefImg[:,:,1] = warpedRefImg[:,:,1]*mask2
-        #warpedRefImg[:,:,2] = warpedRefImg[:,:,2]*mask2
         warpedImage2[:,:,0] = warpedImage2[:,:,0]*mask1
         warpedImage2[:,:,1] = warpedImage2[:,:,1]*mask1
         warpedImage2[:,:,2] = warpedImage2[:,:,2]*mask1
 
-
-        black_img = warpedImage1.astype(float)
-        white_img = warpedImage2.astype(float)
-        mask_img = mask1.astype(float)
-        out_layers = []
-        for channel in range(3):
-            outimg = pyramidBlending.pyramidBlend(black_img[:,:,channel], white_img[:,:,channel], mask_img)
-            out_layers.append(outimg)
-        result = cv2.merge(out_layers)
-
-        result[:,:,0] = result[:,:,0]*mask4
-        result[:,:,1] = result[:,:,1]*mask4
-        result[:,:,2] = result[:,:,2]*mask4
-
+        result = warpedImage1 + warpedImage2
         util.display("result",result)
-        cv2.imwrite("result.png",result)
         return result
 
