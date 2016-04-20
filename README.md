@@ -15,4 +15,7 @@ This project was developed and tested using Python 2.7.10 on Ubuntu 15.10. It de
 
 Results will be stored in the your-path-here/ImageMosaic/results directory.
 
+###Example Result
+![Mosaic Result](https://github.com/alexhagiopol/ImageMosaic/blob/master/finalResult.png)
+
 
