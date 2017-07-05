@@ -8,19 +8,19 @@ A video of the mosaic process is below:
 ### Installation
 This project was developed and tested using Python 2.7.10 on Ubuntu 15.10. It depends on NumPy 1.8.2 and OpenCV 2.4.11. Install and execute this project using the following commands:
 
-    git clone https://github.com/alexhagiopol/ImageMosaic.git
-    cd ImageMosaic
+    git clone https://github.com/alexhagiopol/orthomosaic.git
+    cd orthomosaic
     mkdir results  # location where program places results
     mkdir datasets  # location where you place input data
     sudo apt-get update
     sudo apt-get install python-numpy python-opencv
     python ImageMosaic.py
 
-### Example Data
-An example "datasets" directory with images and camera poses is here: https://drive.google.com/file/d/0B_huqLwo5sS1U3lPMDV0c1NUSWs/view?usp=sharing
-
-### Example Result
-Results from the processed example datset are here: https://drive.google.com/open?id=0B_huqLwo5sS1WFBKbW00dU5QR1E
+### Example Dataset
+I provide an [example "datasets" directory](https://www.dropbox.com/s/3te1zux076f6bwn/datasets.tar.gz?dl=0) with images and camera poses. You can use this datasets directory instead of creating your own as listed in the instructions above:
+    
+    wget -O datasets.tar.gz "https://www.dropbox.com/s/3te1zux076f6bwn/datasets.tar.gz?dl=1"
+    tar -xvzf datasets.tar.gz
 
 ![Mosaic Result](https://github.com/alexhagiopol/ImageMosaic/blob/master/finalResult.png)
 
