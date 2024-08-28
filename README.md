@@ -31,5 +31,5 @@ I provide an [example "datasets" directory](https://www.dropbox.com/s/3te1zux076
 3. `mkdir datasets`
 4. `mkdir datasets/images`
 5. Add images to `datasets/images`
-6. Create a `datasets/imageData.txt` file with the CSV line format: `image_name,lng,lat,roll,pitch,yaw`, e.g. `frame_00000.png,149.31721,-34.32235,99.5,0,0,0`
+6. Create a `datasets/imageData.txt` file with the CSV line format: `image_name,lng,lat,ptch,roll,pitch`, e.g. `frame_00000.png,149.31721,-34.32235,99.5,0,0,0`
 7. python3 ImageMosaic.py
